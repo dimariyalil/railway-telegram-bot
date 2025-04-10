@@ -1,3 +1,7 @@
+const { Telegraf } = require('telegraf'); // ← Вот это было пропущено!
+const express = require('express');
+
+const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.command('start', (ctx) => {
@@ -13,7 +17,7 @@ app.use(bot.webhookCallback('/webhook'));
 
 app.get('/', (req, res) => res.send('🚀 Bot is running'));
 
-// ТЕСТ — добавь эту строку:
+// Логируем токен для проверки
 console.log("🔐 BOT_TOKEN:", process.env.BOT_TOKEN);
 
 bot.telegram.setWebhook(`${process.env.BOT_DOMAIN}/webhook`);
