@@ -4,17 +4,14 @@ const { Telegraf } = require('telegraf');
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// 🔎 Логи переменных
 console.log("🔐 BOT_TOKEN:", process.env.BOT_TOKEN);
 console.log("🌐 BOT_DOMAIN:", process.env.BOT_DOMAIN);
 
-// Регистрируем команду /start
 bot.command('start', (ctx) => {
   console.log("📩 Получен /start");
   ctx.reply('Привет! Railway Telegram Bot работает 🚀');
 });
 
-// Логика WebApp
 bot.on('web_app_data', (ctx) => {
   try {
     const data = JSON.parse(ctx.webAppData.data);
@@ -24,17 +21,27 @@ bot.on('web_app_data', (ctx) => {
   }
 });
 
-// Устанавливаем callback на /webhook
-app.use(bot.webhookCallback('/webhook'));
-
-// Для проверки в браузере
-app.get('/', (req, res) => {
-  res.send('🚀 Бот запущен');
+// Лог запроса от Telegram
+app.post('/webhook', express.json(), (req, res, next) => {
+  console.log("📩 Входящий запрос от Telegram:", req.body);
+  next();
 });
 
-// Запускаем Express сервер
-app.listen(3000, async () => {
-  console.log('🚀 Сервер слушает порт 3000');
+// Обработка Webhook с Telegraf
+app.use('/webhook', (req, res) => {
+  bot.handleUpdate(req.body, res)
+    .then(() => res.status(200).end())
+    .catch((err) => {
+      console.error("❌ Ошибка при обработке Webhook:", err);
+      res.status(500).end();
+    });
+});
 
-  // Telegram сам установит Webhook, если он удалён
+// Проверка в браузере
+app.get('/', (req, res) => {
+  res.send('🚀 Бот запущен и работает');
+});
+
+app.listen(3000, () => {
+  console.log('🚀 Сервер слушает порт 3000');
 });
