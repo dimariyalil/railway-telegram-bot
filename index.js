@@ -1,12 +1,23 @@
 const express = require('express');
 const { Telegraf } = require('telegraf');
+const axios = require('axios');
 
 const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-app.use(express.json()); // обязательно, чтобы Express понимал JSON
+app.use(express.json()); // чтобы Express понимал JSON
 
-// 📌 Обработка Telegram Webhook вручную
+// ✅ Обработка команды /start
+bot.start((ctx) => {
+  ctx.reply('Привет! Я бот, и я работаю через Railway 🚀');
+});
+
+// 📩 Обработка любого текста
+bot.on('text', (ctx) => {
+  ctx.reply(`Ты написал: ${ctx.message.text}`);
+});
+
+// 🧠 Обработка Telegram Webhook вручную
 app.post('/webhook', (req, res) => {
   bot.handleUpdate(req.body)
     .then(() => {
@@ -19,12 +30,12 @@ app.post('/webhook', (req, res) => {
     });
 });
 
-// Проверка в браузере
+// ✅ Проверка в браузере
 app.get('/', (req, res) => {
   res.send('✅ Бот на Railway запущен');
 });
 
-// Запуск Express
+// 🚀 Запуск Express
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
